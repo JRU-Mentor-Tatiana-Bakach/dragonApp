@@ -18,7 +18,7 @@ public interface DragonRepository extends BaseRepository<Dragon>{
 
     Page<Dragon> findDragonByColorIsNull(Pageable pageable);
 
-    Integer countDragonByElementStartingWith(Element element);
+    Integer countDragonByElement(Element element);
 
     Page<Dragon> findDragonByAgeGreaterThan(Integer age, Pageable pageable);
 

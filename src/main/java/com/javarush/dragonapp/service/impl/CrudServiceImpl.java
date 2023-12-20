@@ -1,7 +1,10 @@
 package com.javarush.dragonapp.service.impl;
 
+import com.javarush.dragonapp.dto.BaseDTO;
 import com.javarush.dragonapp.exception.EntityNotFoundException;
 import com.javarush.dragonapp.exception.SaveEntityException;
+import com.javarush.dragonapp.mapper.BaseMapper;
+import com.javarush.dragonapp.mapper.Mapper;
 import com.javarush.dragonapp.model.BaseEntity;
 import com.javarush.dragonapp.repository.BaseRepository;
 import com.javarush.dragonapp.service.CrudService;
@@ -16,41 +19,43 @@ import java.util.Optional;
 
 @Slf4j
 @Transactional(readOnly = true)
-public abstract class CrudServiceImpl<E extends BaseEntity, R extends BaseRepository<E>>
-        implements CrudService<E> {
+public abstract class CrudServiceImpl<E extends BaseEntity, D extends BaseDTO,
+        M extends Mapper<E, D>, R extends BaseRepository<E>> implements CrudService<D> {
 
     final R repository;
 
     final Class<E> genericType;
 
-    protected CrudServiceImpl(R repository, Class<E> genericType) {
+    final M mapper;
+
+    protected CrudServiceImpl(R repository, M mapper, Class<E> genericType) {
         this.repository = repository;
         this.genericType = genericType;
+        this.mapper = mapper;
     }
 
     @Override
     @Transactional
-    public E save(E e) {
+    public D save(D d) {
         try {
-            E save = this.repository.save(e);
-            log.info(this.genericType.getSimpleName() + " save, id: " + e.getId());
+            D save = mapper.toDto(repository.save(mapper.toEntity(d)));
+            log.info(this.genericType.getSimpleName() + " save");
             return save;
         } catch (Exception ex) {
-            log.error(this.genericType.getSimpleName() + " wasn't save, id: " +
-                    e.getId());
+            log.error(this.genericType.getSimpleName() + " don't save");
             throw new SaveEntityException(this.genericType.getSimpleName());
         }
     }
 
     @Override
-    public E getById(Long id) {
+    public D getById(Long id) {
         Optional<E> entity = this.repository.findById(id);
         if (entity.isPresent()) {
             log.info(this.genericType.getSimpleName() + " get, id: " + id);
-            return entity.get();
+            return mapper.toDto(entity.get());
         }
         log.error(this.genericType.getSimpleName() + " don't get, id: " + id);
-        throw new EntityNotFoundException(id, this.genericType.getSimpleName());
+        throw new EntityNotFoundException(this.genericType.getSimpleName());
     }
 
     @Override
@@ -67,21 +72,24 @@ public abstract class CrudServiceImpl<E extends BaseEntity, R extends BaseReposi
 
     @Override
     @Transactional
-    public E update(Long id, E e) {
+    public D update(Long id, D d) {
+        mapper.toDto(repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(this.genericType.getSimpleName())));
         try {
-            this.repository.findById(id).ifPresent(a -> save(e));
-            log.info(e + " update");
-            return e;
+            d.setId(id);
+            this.repository.save(mapper.toEntity(d));
+            log.info(this.genericType.getSimpleName() + " update");
+            return d;
         } catch (Exception ex) {
-            log.error(e + " don't update");
+            log.error(this.genericType.getSimpleName() + " don't update");
             throw new SaveEntityException(this.genericType.getSimpleName());
         }
     }
 
     @Override
-    public Page<E> findAll(Integer pageNumber, String sortField, String sortDirection) {
+    public Page<D> findAll(Integer pageNumber, String sortField, String sortDirection) {
         Pageable pageable = findAllWithPagination(pageNumber, sortField, sortDirection);
-        Page<E> all = repository.findAll(pageable);
+        Page<D> all = repository.findAll(pageable).map(mapper::toDto);
         log.info("Page " + this.genericType.getSimpleName() + " create");
         return all;
     }
@@ -89,16 +97,18 @@ public abstract class CrudServiceImpl<E extends BaseEntity, R extends BaseReposi
     public Pageable findAllWithPagination(final Integer pageNumber,
                                           final String sortField, final String sortDirection) {
         final int pageSize = 3;
-        PageRequest pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-        if (sortField != null && sortField.equalsIgnoreCase("sort")) {
-            pageRequest = PageRequest.of(pageNumber - 1, pageSize);
-            log.info(this.genericType.getSimpleName() + " sort by: " + sortField);
-        } else if (sortField != null && sortDirection != null) {
+        PageRequest pageRequest;
+//                = PageRequest.of(pageNumber - 1, pageSize);
+//        if (sortField != null && sortField.equalsIgnoreCase("sort")) {
+//            pageRequest = PageRequest.of(pageNumber - 1, pageSize);
+//            log.info(this.genericType.getSimpleName() + " sort by: " + sortField);
+//        } else if (sortField != null && sortDirection != null) {
             Sort sort = sortDirection.equalsIgnoreCase(Sort.Direction.ASC.name()) ?
                     Sort.by(sortField).ascending() : Sort.by(sortField).descending();
             pageRequest = PageRequest.of(pageNumber - 1, pageSize, sort);
-            log.info(this.genericType.getSimpleName() + " sort by: " + sortField);
-        }
+            log.info(this.genericType.getSimpleName() + " sort by: " + sortField +
+                    " ,sort direction: " + sortDirection);
+//        }
         return pageRequest;
     }
 }

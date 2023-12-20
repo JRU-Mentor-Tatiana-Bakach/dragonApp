@@ -2,8 +2,9 @@ package com.javarush.dragonapp.controller;
 
 import com.javarush.dragonapp.dto.DragonDTO;
 import com.javarush.dragonapp.exception.DtoValidationException;
-import com.javarush.dragonapp.mapper.DragonMapper;
-import com.javarush.dragonapp.model.Dragon;
+import com.javarush.dragonapp.model.enums.Color;
+import com.javarush.dragonapp.model.enums.Element;
+import com.javarush.dragonapp.service.DragonService;
 import com.javarush.dragonapp.service.impl.DragonServiceImpl;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,41 +18,37 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/dragons")
 public class DragonController {
 
-    private final DragonServiceImpl dragonService;
-
-    private final DragonMapper dragonMapper;
+    private final DragonService dragonService;
 
     @Autowired
-    public DragonController(DragonServiceImpl dragonService, DragonMapper dragonMapper) {
+    public DragonController(DragonService dragonService) {
         this.dragonService = dragonService;
-        this.dragonMapper = dragonMapper;
     }
 
     @GetMapping(value = "/find/{id}")
     public DragonDTO findById(@PathVariable final Long id) {
-        final Dragon dragon = dragonService.getById(id);
-        return dragonMapper.toDto(dragon);
+        return dragonService.getById(id);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<DragonDTO> create(@Valid @RequestBody final DragonDTO dragonDTO,
-                                            final BindingResult bindingResult) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public DragonDTO create(@Valid @RequestBody final DragonDTO dragonDTO,
+                            final BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new DtoValidationException(bindingResult);
         }
-        Dragon dragon = dragonService.save(dragonMapper.toEntity(dragonDTO));
-        return new ResponseEntity<>(dragonMapper.toDto(dragon), HttpStatus.CREATED);
+        return dragonService.save(dragonDTO);
     }
 
-    @PatchMapping("/update/{id}")
-    public ResponseEntity<DragonDTO> update(@PathVariable final Long id,
-                                            @Valid @RequestBody final DragonDTO dragonDTO,
-                                            final BindingResult bindingResult) {
+    @PutMapping("/update/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public DragonDTO update(@PathVariable final Long id,
+                            @Valid @RequestBody final DragonDTO dragonDTO,
+                            final BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             throw new DtoValidationException(bindingResult);
         }
-        Dragon dragon = dragonService.update(id, dragonMapper.toEntity(dragonDTO));
-        return new ResponseEntity<>(dragonMapper.toDto(dragon), HttpStatus.CREATED);
+        return dragonService.update(id, dragonDTO);
     }
 
     @DeleteMapping("/delete/{id}")
@@ -64,18 +61,27 @@ public class DragonController {
     public Page<DragonDTO> findAll(@PathVariable(name = "page-number") final Integer pageNumber,
                                    @RequestParam(name = "sort-field", defaultValue = "id") final String sortField,
                                    @RequestParam(name = "sort-dir", defaultValue = "asc") final String sortDir) {
-        Page<Dragon> page = dragonService.findAll(pageNumber, sortField, sortDir);
-        return page.map(dragonMapper::toDto);
+        return dragonService.findAll(pageNumber, sortField, sortDir);
     }
 
-    @GetMapping("/find-name/{name}/{page-number}")
+    @GetMapping("/find-name/{name}")
     public Page<DragonDTO> findDragonByName(@PathVariable final String name,
-                                            @PathVariable(name = "page-number") final Integer pageNumber,
+                                            @RequestParam(name = "page-number", defaultValue = "1") final Integer pageNumber,
                                             @RequestParam(name = "sort-field", defaultValue = "id") final String sortField,
-                                            @RequestParam(name = "sort-dir", defaultValue = "asc") final String sortDir){
-        Page<Dragon> page = dragonService.findDragonByName(name, pageNumber, sortField, sortDir);
-        return page.map(dragonMapper::toDto);
-
+                                            @RequestParam(name = "sort-dir", defaultValue = "asc") final String sortDir) {
+        return dragonService.findDragonByName(name, pageNumber, sortField, sortDir);
     }
 
+    @GetMapping("/find-color/{color}")
+    public Page<DragonDTO> findDragonByColor(@PathVariable final Color color,
+                                             @RequestParam(name = "page-number", defaultValue = "1") final Integer pageNumber,
+                                             @RequestParam(name = "sort-field", defaultValue = "id") final String sortField,
+                                             @RequestParam(name = "sort-dir", defaultValue = "asc") final String sortDir) {
+        return dragonService.findDragonByColor(color, pageNumber, sortField, sortDir);
+    }
+
+    @GetMapping("/count-element/{element}")
+    public Integer countDragonByElement(@PathVariable final Element element) {
+        return dragonService.countDragonByElement(element);
+    }
 }

@@ -1,3 +1,15 @@
+DELETE FROM payment;
+DELETE FROM dragon;
+DELETE FROM flight;
+DELETE FROM user_info;
+DELETE FROM users;
+
+ALTER SEQUENCE dragon_id_seq RESTART with 1;
+ALTER SEQUENCE flight_id_seq RESTART with 1;
+ALTER SEQUENCE payment_id_seq RESTART with 1;
+ALTER SEQUENCE user_info_id_seq RESTART with 1;
+ALTER SEQUENCE users_id_seq RESTART with 1;
+
 INSERT INTO user_info (date_of_birth, email, name, phone_number, surname)
 VALUES ('2000-02-15', 'peter@gmail.com', 'Peter', '+123456789101', 'Dow'),
        ('1989-04-08', 'hanna@gmail.com', 'Hanna', '+123456789102', 'Kerys'),

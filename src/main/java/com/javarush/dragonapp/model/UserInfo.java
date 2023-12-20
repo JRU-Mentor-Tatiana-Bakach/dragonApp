@@ -11,7 +11,6 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-//@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -33,11 +32,10 @@ public class UserInfo extends BaseEntity {
     @Column
     private LocalDate dateOfBirth;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
-
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
+    @OneToOne(mappedBy = "userInfo",
+            cascade = CascadeType.ALL,
+            //orphanRemoval = true,
+            fetch = FetchType.LAZY)
     private User user;
 
 }

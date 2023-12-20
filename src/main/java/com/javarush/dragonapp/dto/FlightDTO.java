@@ -28,5 +28,5 @@ public class FlightDTO extends BaseDTO {
 
     private Integer speed;
 
-    private Set<PaymentDTO> payments;
+//    private Set<PaymentDTO> payments;
 }

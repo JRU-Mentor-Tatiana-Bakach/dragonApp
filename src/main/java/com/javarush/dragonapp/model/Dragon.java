@@ -11,6 +11,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "dragon")
+@Builder
 public class Dragon extends BaseEntity{
 
     @Column(nullable = false)

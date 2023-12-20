@@ -1,5 +1,8 @@
 package com.javarush.dragonapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,10 +26,12 @@ public class Flight extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
+    //@JsonManagedReference
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "dragon_id")
+    //@JsonManagedReference
     private Dragon dragon;
 
     @Column(nullable = false)
@@ -36,6 +41,21 @@ public class Flight extends BaseEntity{
     private Integer speed;
 
     @ManyToMany(mappedBy = "flights")
+    //@JsonBackReference
     private Set<Payment> payments;
 
+//    @JsonBackReference
+//    public Set<Payment> getPayments() {
+//        return payments;
+//    }
+
+//    @JsonBackReference
+//    public User getUser() {
+//        return user;
+//    }
+
+//    @JsonBackReference
+//    public Dragon getDragon() {
+//        return dragon;
+//    }
 }

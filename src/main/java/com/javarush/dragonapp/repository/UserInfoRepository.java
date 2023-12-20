@@ -13,6 +13,4 @@ public interface UserInfoRepository extends BaseRepository<UserInfo>{
             (LocalDate dateStart, LocalDate dateEnd, String phoneNumberContain, Pageable pageable);
 
     UserInfo findUserInfoByEmail(String email);
-
-    Page<UserInfo> findUserInfoByRole(Role role, Pageable pageable);
 }

@@ -24,7 +24,7 @@ public class HandlerException {
     public ResponseEntity<Object> handleEntityNotFoundException(final EntityNotFoundException e){
         final ExceptionDTO response = ExceptionDTO.builder()
                 .error("EntityNotFoundException")
-                .message(e.getEntityClass() + " with id: " + e.getEntityId() + " not found")
+                .message(e.getEntityClass() + " not found")
                 .status(HttpStatus.NOT_FOUND)
                 .timestamp(now())
                 .build();

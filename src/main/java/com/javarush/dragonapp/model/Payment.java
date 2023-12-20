@@ -1,5 +1,8 @@
 package com.javarush.dragonapp.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -28,7 +31,11 @@ public class Payment extends BaseEntity{
             joinColumns = @JoinColumn(name = "payment_id"),
             inverseJoinColumns = @JoinColumn(name = "flight_id")
     )
+    //@JsonManagedReference
     private Set<Flight> flights;
 
-
+//    @JsonManagedReference
+//    public Set<Flight> getFlights() {
+//        return flights;
+//    }
 }

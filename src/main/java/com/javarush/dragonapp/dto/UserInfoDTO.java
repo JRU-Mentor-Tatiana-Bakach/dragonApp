@@ -28,7 +28,5 @@ public class UserInfoDTO extends BaseDTO {
 
     private LocalDate dateOfBirth;
 
-    private Role role;
-
     private Long userId;
 }

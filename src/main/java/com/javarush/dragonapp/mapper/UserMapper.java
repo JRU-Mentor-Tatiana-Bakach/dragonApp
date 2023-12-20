@@ -5,23 +5,30 @@ import com.javarush.dragonapp.model.User;
 import com.javarush.dragonapp.repository.UserInfoRepository;
 import jakarta.annotation.PostConstruct;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
+import java.util.Optional;
 
 @Component
 public class UserMapper extends BaseMapper<User, UserDTO> {
 
     private final ModelMapper mapper;
-    private final UserInfoRepository unicornRepository;
+    private final UserInfoRepository userInfoRepository;
 
-    @Autowired
-    public UserMapper(ModelMapper mapper, UserInfoRepository userInfoRepository) {
+    private final PasswordEncoder passwordEncoder;
+
+    public UserMapper(ModelMapper mapper, UserInfoRepository unicornRepository,
+                      PasswordEncoder passwordEncoder)
+    {
         super(User.class, UserDTO.class);
         this.mapper = mapper;
-        this.unicornRepository = userInfoRepository;
+        this.userInfoRepository = unicornRepository;
+        this.passwordEncoder = passwordEncoder;
     }
+
 
     @PostConstruct
     public void setupMapper() {
@@ -42,6 +49,10 @@ public class UserMapper extends BaseMapper<User, UserDTO> {
 
     @Override
     void mapSpecificFields(UserDTO source, User destination) {
-        destination.setUserInfo(unicornRepository.findById(source.getUserInfoId()).orElse(null));
+        destination.setUserInfo(userInfoRepository.findById(source.getUserInfoId()).orElse(null));
+        Optional.ofNullable(source.getPassword())
+                .filter(StringUtils::hasText)
+                .map(passwordEncoder::encode)
+                .ifPresent(destination::setPassword);
     }
 }

@@ -1,5 +1,6 @@
 package com.javarush.dragonapp.model;
 
+import com.javarush.dragonapp.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,8 +23,10 @@ public class User extends BaseEntity{
     @Column
     private String password;
 
-    @OneToOne(mappedBy = "user",
-            cascade = CascadeType.ALL,
-            fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_info_id")
     private UserInfo userInfo;
 }

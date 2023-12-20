@@ -1,7 +1,16 @@
 package com.javarush.dragonapp.model.enums;
 
-public enum Role {
+import org.springframework.security.core.GrantedAuthority;
 
-    USER,
-    ADMIN
+public enum Role
+        implements GrantedAuthority
+{
+
+    ADMIN,
+    USER;
+
+    @Override
+    public String getAuthority() {
+        return name();
+    }
 }

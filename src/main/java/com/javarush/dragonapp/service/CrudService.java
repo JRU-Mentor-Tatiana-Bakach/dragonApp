@@ -1,18 +1,19 @@
 package com.javarush.dragonapp.service;
 
+import com.javarush.dragonapp.dto.BaseDTO;
 import com.javarush.dragonapp.model.BaseEntity;
 import org.springframework.data.domain.Page;
 
-public interface CrudService <E extends BaseEntity>{
+public interface CrudService <D extends BaseDTO>{
 
-    E getById(Long id);
+    D getById(Long id);
 
-    E save(E e);
+    D save(D d);
 
     void delete(Long id);
 
-    E update(Long id, E e);
+    D update(Long id, D e);
 
-    Page<E> findAll(Integer pageNumber, String sortField, String sortDirection);
+    Page<D> findAll(Integer pageNumber, String sortField, String sortDirection);
 
 }

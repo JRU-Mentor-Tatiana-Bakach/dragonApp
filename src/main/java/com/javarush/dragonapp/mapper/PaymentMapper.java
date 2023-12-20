@@ -14,5 +14,4 @@ public class PaymentMapper extends BaseMapper<Payment, PaymentDTO> {
     PaymentMapper() {
         super(Payment.class, PaymentDTO.class);
     }
-
 }
